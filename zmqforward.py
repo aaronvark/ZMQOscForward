@@ -24,9 +24,33 @@ while True:
             localClient.send(osc_message.OscMessage(dgram))
             # print("got message ",message)
     else:
-        # msg = osc_message_builder.OscMessageBuilder(address="/hello")
-        # msg.add_arg("Hello World!")
-        # builtMessage = msg.build()
-        # localClient.send(builtMessage)
+        # mesh template tester
+        msg = osc_message_builder.OscMessageBuilder(address="/object/MeshTemplate")
+        # msgType & root transform
+        msg.add_arg("0")
+        for i in range(0,16):
+            msg.add_arg("0")
+
+        # objects: id, type, active, name, properties (as per type)
+        msg.add_arg("0")
+        msg.add_arg("Mesh")
+        msg.add_arg("MeshTemplate")
+        msg.add_arg("0")
+
+        # local transform
+        for i in range(0,16):
+            msg.add_arg("0")
+
+        # mesh properties: modelName, visible, color (RGBA, Space), transparency
+        msg.add_arg("model_name.glb")
+        msg.add_arg("True")
+        # Color
+        for i in range(0,4):
+            msg.add_arg("1")
+        msg.add_arg("Linear")        
+        msg.add_arg("1")
+        
+        builtMessage = msg.build()
+        localClient.send(builtMessage)
         # print("error: message timeout")
         time.sleep(0.1)
