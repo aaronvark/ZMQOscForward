@@ -31,15 +31,19 @@ while True:
         for i in range(0,16):
             msg.add_arg("0")
 
-        # objects: id, type, active, name, properties (as per type)
+        # objects: id, type, active, name
         msg.add_arg("0")
         msg.add_arg("Mesh")
-        msg.add_arg("0")
+        msg.add_arg("True")
         msg.add_arg("MeshTemplate")
 
         # local transform
         for i in range(0,16):
             msg.add_arg("0")
+
+        # wildcard properties: bool, float
+        msg.add_arg("True")
+        msg.add_arg(1.0)
 
         # mesh properties: modelName, visible, color (RGBA, Space), transparency
         msg.add_arg("model_name.glb")
