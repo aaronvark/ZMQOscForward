@@ -1,5 +1,3 @@
-from flask import Flask, render_template
-from flask_sock import Sock
 from pythonosc import osc_message_builder
 import zmq
 import pythonosc
