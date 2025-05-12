@@ -6,7 +6,7 @@ import time
 
 context = zmq.Context()
 socket = context.socket(zmq.SUB)
-socket.connect("tcp://pong.hku.nl:5555")
+socket.connect("tcp://host:5555")
 
 localClient = udp_client.UDPClient("127.0.0.1", 8000)
 
