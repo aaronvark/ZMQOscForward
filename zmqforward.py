@@ -34,8 +34,8 @@ while True:
         # objects: id, type, active, name, properties (as per type)
         msg.add_arg("0")
         msg.add_arg("Mesh")
-        msg.add_arg("MeshTemplate")
         msg.add_arg("0")
+        msg.add_arg("MeshTemplate")
 
         # local transform
         for i in range(0,16):
