@@ -1,0 +1,5 @@
+flask-sock
+gevent
+pyzmq
+numpy
+python-osc
