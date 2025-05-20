@@ -2,17 +2,25 @@ from pythonosc import osc_message_builder
 from pythonosc import udp_client
 from pythonosc import osc_message
 import zmq
+import sys
 import time
 
-context = zmq.Context()
-socket = context.socket(zmq.SUB)
-socket.connect("tcp://host:5555")
-socket.setsockopt(zmq.SUBSCRIBE, b'')
+oscdest = (b"127.0.0.1:8000",)
 
-localClient = udp_client.UDPClient("127.0.0.1", 8000)
+context = zmq.Context()
+subsocket = context.socket(zmq.SUB)
+subsocket.connect("tcp://pong.hku.nl:5555")
+subsocket.setsockopt(zmq.SUBSCRIBE, b'')
+
+oscsend = None
+if zmq.DRAFT_API:
+    oscsend = context.socket(zmq.DGRAM)
+    oscsend.bind("udp://*:6789")
+else:
+    oscsend = udp_client.UDPClient("127.0.0.1", 8000)
 
 poller = zmq.Poller()
-poller.register(socket, zmq.POLLIN)
+poller.register(subsocket, zmq.POLLIN)
 
 def testMessage():
     # mesh template tester
@@ -46,20 +54,31 @@ def testMessage():
     msg.add_arg("1")
     
     builtMessage = msg.build()
-    localClient.send(builtMessage)
+    if zmq.DRAFT_API:
+        for d in oscdest:
+            oscsend.send_multipart(d, builtMessage)
+    else:
+        oscsend.send(builtMessage)
 
 # Loop and accept messages from both channels, acting accordingly
 while True:
     # TODO: Might need to retry connection?
     socks = dict(poller.poll(1000))
     if socks:
-        if socks.get(socket) == zmq.POLLIN:
-            dgram = socket.recv(zmq.NOBLOCK)
+        if socks.get(subsocket) == zmq.POLLIN:
+            dgrams = subsocket.recv_multipart(copy=False)
             # Untested convert to osc message (from dgram)
-            localClient.send(osc_message.OscMessage(dgram))
-            # print("got message ",message)
+            if zmq.DRAFT_API:
+                for dgram in dgrams:
+                    for d in oscdest:
+                        oscsend.send_multipart((d, dgram), copy=False)
+                sys.stdout.write('█')
+                sys.stdout.flush()
+            else:
+                oscsend.send(osc_message.OscMessage(dgram))
+                # print("got message ",message)
     else:
         # testMessage()
         # print("error: message timeout")
-        time.sleep(0.1)
+        print("idle iter")
 
